@@ -13,10 +13,10 @@ def allocGameNode(data):
     """
     #用户ID做key
     try:
-        gamenode = GameNodeRouter(data['pid']).get_node()
+        gamenode = GameNodeRouter().get_node(data['pid'])
         if gamenode:
             log.msg("allocGameNode successful. node: %s" % gamenode.getName())
-            gamenode.callbackChild("gameMsgRouter", data)
+            gamenode.callbackChildNotForResult("gameMsgRouter", data)
         else:
             log.err("can't find gamenode. data: %s" % data)
     except GameNodeRouterException:
@@ -31,10 +31,10 @@ def forwarding(data):
     """
     #用户ID做key
     try:
-        gamenode = GameNodeRouter(data['pid']).get_node()
+        gamenode = GameNodeRouter().get_node(data['pid'])
         if gamenode:
             log.msg("forwarding data. node: %s" % gamenode.getName())
-            gamenode.callbackChild("gameMsgRouter", data)
+            gamenode.callbackChildNotForResult("gameMsgRouter", data)
         else:
             log.err("can't find gamenode. data: %s" % data)
     except GameNodeRouterException:

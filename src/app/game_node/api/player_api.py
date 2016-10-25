@@ -23,7 +23,6 @@ def handle_2(data):
     :param data:
     :return:
     """
-    print data
     player = PlayerManager().getPlayerByID(data['pid'])
     player.sendMsg({'m': 2, 's': 1})
 

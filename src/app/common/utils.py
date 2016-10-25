@@ -39,3 +39,11 @@ def selectTypeNode(nodetype):
     """
     nodes = [i for i in GlobalObject().root.childsmanager._childs.values() if i.getName().find(nodetype) >= 0]
     return nodes
+
+def getcurrentconn(sessionno):
+    """
+    注意链接对象和protocol 链接对象封装了protocol
+    @des: 根据连接ID，获取连接对象, sessionno=conn.transport.sessionno
+    """
+    connobj = GlobalObject().netfactory.connmanager.getConnectionByID(sessionno)
+    return connobj

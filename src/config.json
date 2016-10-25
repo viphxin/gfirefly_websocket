@@ -1,11 +1,13 @@
 {
 "master":{"roothost":"localhost","rootport":9999,"webport":9998},
 "servers":{
-"game1":{"name":"game1","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.game_node.game_server"},
-"game2":{"name":"game2","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.game_node.game_server"},
-"net1":{"wsport":3001, "wsurls": ["^/chat"], "name":"net1","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.net_node.net_server"},
-"net2":{"wsport":3002, "wsurls": ["^/chat"], "name":"net2","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.net_node.net_server"},
-"gate1":{"rootport":20001,"name":"gate1", "app":"app.gate_node.gate_server"},
-"gate2":{"rootport":20002,"name":"gate2", "app":"app.gate_node.gate_server"}
-}
+  "game1":{"name":"game1","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.game_node.game_server"},
+  "game2":{"name":"game2","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.game_node.game_server"},
+  "net1":{"keyfile":"sypassport_nopass.key", "certfile": "sypassport.crt", "wsport":18101, "wsurls": ["^/chat"], "name":"net1","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.net_node.net_server"},
+  "net2":{"keyfile":"sypassport_nopass.key", "certfile": "sypassport.crt", "wsport":18102, "wsurls": ["^/chat"], "name":"net2","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.net_node.net_server"},
+  "fight1":{"netport":18109,"name":"fight1","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.fight_node.fight_server"},
+  "fight1":{"netport":18109,"name":"fight1","remoteport":[{"rootport":20001,"rootname":"gate1"}, {"rootport":20002,"rootname":"gate2"}],"app":"app.fight_node.fight_server"},
+  "gate1":{"rootport":20001,"name":"gate1", "app":"app.gate_node.gate_server"},
+  "gate2":{"rootport":20002,"name":"gate2", "app":"app.gate_node.gate_server"}
+  }
 }

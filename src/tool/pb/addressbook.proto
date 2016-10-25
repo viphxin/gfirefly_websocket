@@ -1,0 +1,34 @@
+syntax = "proto3";
+package tutorial;
+
+message Person {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+
+  message PhoneNumber {
+    string number = 1;
+    PhoneType type = 2;
+  }
+
+  repeated PhoneNumber phone = 4;
+}
+
+message AddressBook {
+  repeated Person person = 1;
+}
+
+message TestMsg {
+    oneof test_oneof {
+        string name1 = 4;
+        string name2 = 5;
+    };
+    repeated string test_list = 6;
+    map<string, string> test_dict = 7;
+}

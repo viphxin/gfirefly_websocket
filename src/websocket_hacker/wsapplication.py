@@ -1,13 +1,11 @@
 #coding=utf-8
-import sys
-if 'threading' in sys.modules:
-    del sys.modules['threading']
+import sys, os
+# if 'threading' in sys.modules:
+#     del sys.modules['threading']
 import ujson as json
 import itertools
 import gevent
 from gevent import Greenlet, queue
-from gevent import monkey
-monkey.patch_all()
 
 from geventwebsocket import WebSocketServer, WebSocketApplication, Resource
 from protc import CustProtc
@@ -78,13 +76,14 @@ class MyApplication(WebSocketApplication):
 
     def on_message(self, message):
         gevent.spawn(self.doDataReceived, message)
+        # self.doDataReceived(message)
 
     def doDataReceived(self, message):
         if message is None:
             return
         try:
             message = CustProtc.decoder(message)
-            if message['m'] > 1 and getattr(GlobalObject(), "pid", None):
+            if message['m'] > 1 and getattr(self, "pid", None):
                 #用户登陆成功后其他消息全部转发到gate
                 GlobalObject().wsapp.service.callTarget(200, self, message)
             elif message['m'] == 1 or message['m'] == 0:
@@ -110,6 +109,7 @@ class MyApplication(WebSocketApplication):
         }))
 
     def sendData(self, data):
+        log.msg("send: %s" % data)
         self.mysender.sendall(CustProtc.encoder(data))
 
     def safeWriteMsg(self, client, message):
@@ -146,11 +146,12 @@ class MyWebSocketServer(Greenlet):
     """
     websocket服务器/当factory用吧
     """
-    def __init__(self, port, urls, app):
+    def __init__(self, port, urls, app, debug=False, **ssl_options):
         """端口监听器\n
         @param port: int 监听的端口\n
         @param urls: 链接的正则表达式列表\n
         @param apps: gevent-websocket封装的applications
+        @param ssl_options: ssl参数
         """
         Greenlet.__init__(self)
         self.port = port
@@ -162,6 +163,16 @@ class MyWebSocketServer(Greenlet):
         self.allClients = {}
         #服务通道
         self.service = None
+        #ssl_options
+        root_ca = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ca")
+        if ssl_options:
+            self.ssl_options = ssl_options
+            self.ssl_options.update({"keyfile": os.path.join(root_ca, self.ssl_options['keyfile']),
+                                     "certfile": os.path.join(root_ca, self.ssl_options['certfile'])})
+        else:
+            self.ssl_options = {}
+        log.msg(self.ssl_options)
+        self.debug = debug
 
     def addServiceChan(self, service):
         """
@@ -193,6 +204,8 @@ class MyWebSocketServer(Greenlet):
 
             Resource([(i, self.apps) for i in self.urls]),
 
-            debug=False
+            debug=self.debug,
+
+            **self.ssl_options
         )
         self.factory.serve_forever()

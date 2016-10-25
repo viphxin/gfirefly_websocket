@@ -66,7 +66,13 @@ class FFServer:
             reactor.listenTCP(netport,self.netfactory)
 
         if wsport:
-            wsapp = MyWebSocketServer(wsport, wsurls, MyApplication)
+            #是否需要支持wss
+            keyfile = config.get('keyfile', None)
+            certfile = config.get('certfile', None)
+            if keyfile:
+                wsapp = MyWebSocketServer(wsport, wsurls, MyApplication, keyfile=keyfile, certfile=certfile)
+            else:
+                wsapp = MyWebSocketServer(wsport, wsurls, MyApplication)
             wsapp.addServiceChan(services.CommandService("netservice"))
             GlobalObject().wsapp = wsapp
             wsapp.start()

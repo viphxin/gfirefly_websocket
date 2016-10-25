@@ -15,7 +15,7 @@ from websocket_hacker.wsapplication import MySender
 from gtwisted.core import reactor
 
 
-PASSPORT_URL = "http://127.0.0.1:18008/"
+PASSPORT_URL = "http://127.0.0.1:9991/"
 
 def add_md5(params):
     # 不需要加入签名的参数
@@ -99,14 +99,16 @@ def do_passport(username):
 #         gevent.sleep(60)
 #     #ws.close()
 
+import random
+import string
+
 class WsServer(object):
     """
     这里是一个测试
     """
-    def __init__(self, ws_url, nick, tocken):
+    def __init__(self, ws_url, nick):
         self.ws_url = ws_url
         self.nick = nick
-        self.tocken = tocken
         self.ws = create_connection(ws_url)
         self.mysender = MySender(self.ws)
         self.mysender.start()
@@ -116,7 +118,7 @@ class WsServer(object):
     def run(self):
         self.sendHeatData()
         #用户登陆
-        self.sendMsg({'m': 1, 't': self.tocken})
+        self.sendMsg({'type': "reg", 'nick': self.nick})
         #收数据
         while 1:
             result = self.ws.recv()
@@ -125,22 +127,22 @@ class WsServer(object):
 
     def sendHeatData(self):
         self.ping_st = time.time()
-        self.sendMsg({'m': 0})
-        reactor.callLater(60, self.sendHeatData)
+        self.sendMsg({"type": "ping"})
+        reactor.callLater(28, self.sendHeatData)
 
     def sendMsg(self, data):
         self.mysender.sendall(json.dumps(data))
 
     def onReceived(self, data):
-        print data
         data = json.loads(data)
-        if data['m'] == 0:
-            print "ping: %s ms" % ((time.time() - self.ping_st)*1000)
-        elif data['m'] == 1 and data['s'] == 1:
-            self.sendMsg({'m': 2})
-        elif data['m'] == 2:
-            # gevent.sleep(2)
-            self.sendMsg({'m': 2})
+        rnd = "%s" % random.random()
+        msg = string.join(random.sample(string.printable, 10)).replace(" ","")
+        if data['type'] == "reg":
+            self.sendMsg({"type": "send", "msg": msg, "rnd": rnd.split(".")[1]})
+        else:
+            print data
+            gevent.sleep(1)
+            self.sendMsg({"type": "send", "msg": u"你猜%s" % msg, "rnd": rnd.split(".")[1]})
 
 
     def __del__(self):
@@ -149,8 +151,6 @@ class WsServer(object):
 
 if __name__ == "__main__":
     jobs = []
-    for i in range(1):
-        tocken, dis = do_passport("huangxin")
-        # jobs = [gevent.spawn(WsServer("wss://192.168.2.225:18001/chat", "huangxin", tocken).run)]
-        jobs = [gevent.spawn(WsServer("ws://%s/chat" % dis, "huangxin", tocken).run)]
+    for i in range(2600):
+        jobs = [gevent.spawn(WsServer("ws://do.vgot.net:8100", "fufff_%s" % i).run)]
     gevent.wait(jobs)

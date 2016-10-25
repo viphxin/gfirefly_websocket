@@ -17,6 +17,7 @@ def heatBeat_0(conn, data):
     """
     setattr(conn, "heatbeat_t", time.time())
     #不返回!!!!!!
+    conn.sendData({'m': 0, 's': 1})#测试返回
 
 @wsServiceHandle
 def userLogin_1(conn, data):
@@ -35,7 +36,7 @@ def userLogin_1(conn, data):
         if resp['success']:
             pid = resp['data']
             #这只全局变量pid
-            setattr(GlobalObject(), "pid", pid)
+            setattr(conn, "pid", pid)
             #验证通过分配gameserver node
             getOneRootByType("gate").callRemoteNotForResult("allocGameNode", {'m': 1, 'pid': pid, 'sid': conn.GlobalSessionno})#调用root服务器(gate)
             # conn.sendData({'m': 1, 's': 1})
@@ -45,7 +46,7 @@ def userLogin_1(conn, data):
     else:
         #just a test
         #这只全局变量pid
-        setattr(GlobalObject(), "pid", data['t'])
+        setattr(conn, "pid", data['t'])
         #验证通过分配gameserver node
         getOneRootByType("gate").callRemoteNotForResult("allocGameNode", {'m': 1, 'pid': data['t'], 'sid': conn.GlobalSessionno})
 
@@ -58,5 +59,5 @@ def proxyToGate_200(conn, data):
     :return:
     """
     #所有消息都加上这两个字段方便gate路由到gamenode
-    data.update({'pid': GlobalObject().pid, 'sid': conn.GlobalSessionno})
+    data.update({'pid': conn.pid, 'sid': conn.GlobalSessionno})
     getOneRootByType("gate").callRemoteNotForResult("forwarding", data)
